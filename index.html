@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>حاسبة تكلفة شباك الألمنيوم</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 45%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      background-color: #007bff;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .shabaks-container {
+      margin-top: 20px;
+    }
+
+    .shabak {
+      padding: 10px;
+      border: 1px solid #ddd;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+    }
+
+    .shabak .remove-btn {
+      background-color: #e74c3c;
+      color: white;
+      padding: 5px 10px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .shabak .remove-btn:hover {
+      background-color: #c0392b;
+    }
+
+    #result {
+      margin-top: 30px;
+      display: none;
+      background-color: #f9f9f9;
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+    }
+
+    .result-item {
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    .result-item strong {
+      color: #007bff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>حاسبة تكلفة شباك الألمنيوم</h1>
+
+    <label for="aluminumPrice">سعر كيلو الألمنيوم (شيكل):</label>
+    <input type="number" id="aluminumPrice" placeholder="مثال: 25">
+
+    <label for="glassPrice">سعر متر الكزاز (شيكل):</label>
+    <input type="number" id="glassPrice" placeholder="مثال: 80">
+
+    <div class="shabaks-container" id="shabaksContainer"></div>
+
+    <button id="addShabakBtn">إضافة شباك جديد</button>
+
+    <button id="calculateBtn" style="display: none;">احسب التكلفة</button>
+
+    <div id="result">
+      <h3>النتائج:</h3>
+      <div id="individualResults"></div>
+      <div class="result-item" style="margin-top: 20px;">
+        💰 <strong>إجمالي التكلفة لجميع النوافذ: <span id="totalCost"></span> شيكل</strong>
+      </div>
+      <div class="result-item">
+        🛠️ <strong>إجمالي الأدوات (السكرة، العجلات، يد الريشت): <span id="totalItems"></span></strong>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let shabaksCount = 0;
+
+    document.addEventListener("DOMContentLoaded", function () {
+      // إضافة شباك جديد
+      document.getElementById('addShabakBtn').addEventListener('click', function () {
+        shabaksCount++;
+        const shabakDiv = document.createElement('div');
+        shabakDiv.classList.add('shabak');
+        shabakDiv.id = 'shabak' + shabaksCount;
+
+        shabakDiv.innerHTML = `
+          <label for="length${shabaksCount}">طول الشباك (سم):</label>
+          <input type="number" id="length${shabaksCount}" placeholder="مثال: 120">
+          
+          <label for="width${shabaksCount}">عرض الشباك (سم):</label>
+          <input type="number" id="width${shabaksCount}" placeholder="مثال: 100">
+
+          <button class="remove-btn" onclick="removeShabak(${shabaksCount})">حذف الشباك</button>
+        `;
+        document.getElementById('shabaksContainer').appendChild(shabakDiv);
+
+        // إظهار زر الحساب فقط بعد إضافة شباك واحد
+        if (shabaksCount > 0) {
+          document.getElementById('calculateBtn').style.display = 'block';
+        }
+      });
+
+      // حساب التكلفة بعد إدخال الأبعاد
+      document.getElementById('calculateBtn').addEventListener('click', function () {
+        const aluminumPrice = parseFloat(document.getElementById('aluminumPrice').value);
+        const glassPrice = parseFloat(document.getElementById('glassPrice').value);
+
+        if (isNaN(aluminumPrice) || isNaN(glassPrice) || aluminumPrice <= 0 || glassPrice <= 0) {
+          alert("يرجى إدخال القيم بشكل صحيح.");
+          return;
+        }
+
+        let totalCost = 0;
+        let totalScrews = 0;
+        let totalWheels = 0;
+        let totalHandles = 0;
+
+        // تم حساب جميع النوافذ المدخلة
+        let individualResultsHTML = '';
+        for (let i = 1; i <= shabaksCount; i++) {
+          const length = parseFloat(document.getElementById(`length${i}`).value);
+          const width = parseFloat(document.getElementById(`width${i}`).value);
+
+          if (isNaN(length) || isNaN(width) || length <= 0 || width <= 0) {
+            alert(`يرجى إدخال الأبعاد بشكل صحيح للشباك رقم ${i}.`);
+            return;
+          }
+
+          // حساب التكلفة لكل شباك
+          const area = (length * width) / 10000;  // المساحة بالمتر المربع
+          const weight = area * 9;  // الوزن بالأطنان
+          const materialCost = weight * aluminumPrice; // تكلفة الألمنيوم
+          const screwsCost = 2 * 9; // تكلفة السكرة
+          const handleCost = 4; // تكلفة يد الريشت
+          const wheelsCost = 6 * 1.25; // تكلفة العجلات
+          const totalCostBeforeGlass = materialCost + screwsCost + handleCost + wheelsCost;
+
+          const glassLength = length - 15.2;
+          const glassWidth = ((width - 2.7) / 2) - 5.7;
+          const glassArea = (glassLength * glassWidth) / 10000;
+          const glassCost = glassArea * glassPrice;
+          const totalGlassCost = glassCost * 2;  // نضرب في 2 لأن لدينا كزازتين لكل شباك
+
+          const totalCostPerWindow = totalCostBeforeGlass + totalGlassCost;
+
+          totalCost += totalCostPerWindow;
+          totalScrews += 2;
+          totalWheels += 6;
+          totalHandles += 1;
+
+          // عرض القياسات الخاصة بالزاز
+          individualResultsHTML += `
+            <div class="result-item">الشباك رقم ${i}:</div>
+            <div class="result-item">مساحة الشباك: <strong>${area.toFixed(2)} م²</strong></div>
+            <div class="result-item">الوزن: <strong>${weight.toFixed(2)} كغم</strong></div>
+            <div class="result-item">تكلفة الألمنيوم: <strong>${materialCost.toFixed(2)} شيكل</strong></div>
+            <div class="result-item">السكرة: <strong>${screwsCost.toFixed(2)} شيكل</strong></div>
+            <div class="result-item">يد الريشت: <strong>${handleCost.toFixed(2)} شيكل</strong></div>
+            <div class="result-item">العجلات: <strong>${wheelsCost.toFixed(2)} شيكل</strong></div>
+            <div class="result-item">💡 التكلفة قبل الزجاج: <strong>${totalCostBeforeGlass.toFixed(2)} شيكل</strong></div>
+            <div class="result-item">📐 طول الكزاز: <strong>${glassLength.toFixed(2)} سم</strong></div>
+            <div class="result-item">📐 عرض الكزاز: <strong>${glassWidth.toFixed(2)} سم</strong></div>
+            <div class="result-item">تكلفة الكزاز (لكزازتين): <strong>${totalGlassCost.toFixed(2)} شيكل</strong></div>
+            <div class="result-item">💰 التكلفة الإجمالية للشباك: <strong>${totalCostPerWindow.toFixed(2)} شيكل</strong></div>
+            <hr>
+          `;
+        }
+
+        // عرض نتائج كل شباك
+        document.getElementById('individualResults').innerHTML = individualResultsHTML;
+
+        // عرض التكلفة الإجمالية لجميع النوافذ
+        document.getElementById('totalCost').innerText = totalCost.toFixed(2);
+        document.getElementById('totalItems').innerText = `سكرة: ${totalScrews} - عجلات: ${totalWheels} - يد الريشت: ${totalHandles}`;
+
+        // إظهار قسم النتائج
+        document.getElementById('result').style.display = 'block';
+      });
+    });
+
+    // إزالة شباك
+    function removeShabak(shabakId) {
+      const shabakElement = document.getElementById('shabak' + shabakId);
+      shabakElement.remove();
+      shabaksCount--;
+
+      // إخفاء زر الحساب إذا لم يكن هناك نوافذ
+      if (shabaksCount === 0) {
+        document.getElementById('calculateBtn').style.display = 'none';
+        document.getElementById('result').style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>
