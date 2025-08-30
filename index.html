@@ -99,6 +99,35 @@
     .result-item strong {
       color: #007bff;
     }
+
+    /* إضافة شارة الضبط في الزاوية العليا */
+    .settings-icon {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background-color: #007bff;
+      color: white;
+      padding: 15px;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .settings-container {
+      position: fixed;
+      top: 80px;
+      left: 20px;
+      background-color: white;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      display: none;
+    }
+
+    .settings-container input {
+      width: 100%;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
@@ -141,6 +170,26 @@
     </div>
   </div>
 
+  <!-- شارة الضبط -->
+  <div class="settings-icon" id="settingsIcon">⚙️</div>
+
+  <!-- نافذة إعدادات الضبط -->
+  <div class="settings-container" id="settingsContainer">
+    <label for="screwsPrice">سعر السكرة (شيكل):</label>
+    <input type="number" id="screwsPrice" placeholder="مثال: 2">
+
+    <label for="wheelsPrice">سعر العجلات (شيكل):</label>
+    <input type="number" id="wheelsPrice" placeholder="مثال: 6">
+
+    <label for="handlePrice">سعر يد الريشت (شيكل):</label>
+    <input type="number" id="handlePrice" placeholder="مثال: 4">
+
+    <label for="weightPerSquareMeter">وزن الألمنيوم لكل متر مربع (كغم):</label>
+    <input type="number" id="weightPerSquareMeter" placeholder="مثال: 9">
+
+    <button id="saveSettingsBtn">حفظ الإعدادات</button>
+  </div>
+
   <script>
     let shabaksCount = 0;
 
@@ -169,11 +218,39 @@
         }
       });
 
+      // فتح نافذة الإعدادات عند الضغط على أيقونة الضبط
+      document.getElementById('settingsIcon').addEventListener('click', function () {
+        document.getElementById('settingsContainer').style.display = 'block';
+      });
+
+      // حفظ الإعدادات عند الضغط على زر الحفظ
+      document.getElementById('saveSettingsBtn').addEventListener('click', function () {
+        const screwsPrice = parseFloat(document.getElementById('screwsPrice').value) || 2;
+        const wheelsPrice = parseFloat(document.getElementById('wheelsPrice').value) || 6;
+        const handlePrice = parseFloat(document.getElementById('handlePrice').value) || 4;
+        const weightPerSquareMeter = parseFloat(document.getElementById('weightPerSquareMeter').value) || 9;
+
+        // حفظ القيم المدخلة
+        localStorage.setItem('screwsPrice', screwsPrice);
+        localStorage.setItem('wheelsPrice', wheelsPrice);
+        localStorage.setItem('handlePrice', handlePrice);
+        localStorage.setItem('weightPerSquareMeter', weightPerSquareMeter);
+
+        alert('تم حفظ الإعدادات بنجاح');
+        document.getElementById('settingsContainer').style.display = 'none';
+      });
+
       // حساب التكلفة بعد إدخال الأبعاد
       document.getElementById('calculateBtn').addEventListener('click', function () {
         const aluminumPrice = parseFloat(document.getElementById('aluminumPrice').value);
         const glassPrice = parseFloat(document.getElementById('glassPrice').value);
         const customerRate = parseFloat(document.getElementById('customerRate').value);
+
+        // استرجاع القيم من localStorage إذا كانت موجودة
+        const screwsPrice = parseFloat(localStorage.getItem('screwsPrice')) || 2;
+        const wheelsPrice = parseFloat(localStorage.getItem('wheelsPrice')) || 6;
+        const handlePrice = parseFloat(localStorage.getItem('handlePrice')) || 4;
+        const weightPerSquareMeter = parseFloat(localStorage.getItem('weightPerSquareMeter')) || 9;
 
         if (isNaN(aluminumPrice) || isNaN(glassPrice) || isNaN(customerRate) || aluminumPrice <= 0 || glassPrice <= 0 || customerRate <= 0) {
           alert("يرجى إدخال القيم بشكل صحيح.");
@@ -187,7 +264,6 @@
         let totalArea = 0;
         let totalCustomerCost = 0;
 
-        // تم حساب جميع النوافذ المدخلة
         let individualResultsHTML = '';
         for (let i = 1; i <= shabaksCount; i++) {
           const length = parseFloat(document.getElementById(`length${i}`).value);
@@ -199,19 +275,19 @@
           }
 
           // حساب التكلفة لكل شباك
-          const area = (length * width) / 10000;  // المساحة بالمتر المربع
-          const weight = area * 9;  // الوزن بالأطنان
-          const materialCost = weight * aluminumPrice; // تكلفة الألمنيوم
-          const screwsCost = 2 * 9; // تكلفة السكرة
-          const handleCost = 4; // تكلفة يد الريشت
-          const wheelsCost = 6 * 1.25; // تكلفة العجلات
+          const area = (length * width) / 10000;
+          const weight = area * weightPerSquareMeter;
+          const materialCost = weight * aluminumPrice;
+          const screwsCost = screwsPrice * 2;
+          const handleCost = handlePrice;
+          const wheelsCost = wheelsPrice * 1.25;
           const totalCostBeforeGlass = materialCost + screwsCost + handleCost + wheelsCost;
 
           const glassLength = length - 15.2;
           const glassWidth = ((width - 2.7) / 2) - 5.7;
           const glassArea = (glassLength * glassWidth) / 10000;
           const glassCost = glassArea * glassPrice;
-          const totalGlassCost = glassCost * 2;  // نضرب في 2 لأن لدينا كزازتين لكل شباك
+          const totalGlassCost = glassCost * 2;
 
           const totalCostPerWindow = totalCostBeforeGlass + totalGlassCost;
 
@@ -222,7 +298,6 @@
           totalArea += area;
           totalCustomerCost += area * customerRate;
 
-          // عرض القياسات الخاصة بالزاز
           individualResultsHTML += `
             <div class="result-item">الشباك رقم ${i}:</div>
             <div class="result-item">مساحة الشباك: <strong>${area.toFixed(2)} م²</strong></div>
@@ -240,10 +315,8 @@
           `;
         }
 
-        // حساب صافي الربح
         const netProfit = totalCustomerCost - totalCost;
 
-        // عرض النتائج
         document.getElementById('individualResults').innerHTML = individualResultsHTML;
         document.getElementById('totalCost').innerText = totalCost.toFixed(2);
         document.getElementById('totalItems').innerText = `سكرة: ${totalScrews} - عجلات: ${totalWheels} - يد الريشت: ${totalHandles}`;
@@ -255,13 +328,11 @@
       });
     });
 
-    // إزالة شباك
     function removeShabak(shabakId) {
       const shabakElement = document.getElementById('shabak' + shabakId);
       shabakElement.remove();
       shabaksCount--;
 
-      // إخفاء زر الحساب إذا لم يكن هناك نوافذ
       if (shabaksCount === 0) {
         document.getElementById('calculateBtn').style.display = 'none';
         document.getElementById('result').style.display = 'none';
