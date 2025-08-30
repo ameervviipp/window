@@ -111,6 +111,9 @@
     <label for="glassPrice">سعر متر الكزاز (شيكل):</label>
     <input type="number" id="glassPrice" placeholder="مثال: 80">
 
+    <label for="customerRate">سعر المتر المربع للزبون (شيكل):</label>
+    <input type="number" id="customerRate" placeholder="مثال: 100">
+
     <div class="shabaks-container" id="shabaksContainer"></div>
 
     <button id="addShabakBtn">إضافة شباك جديد</button>
@@ -125,6 +128,15 @@
       </div>
       <div class="result-item">
         🛠️ <strong>إجمالي الأدوات (السكرة، العجلات، يد الريشت): <span id="totalItems"></span></strong>
+      </div>
+      <div class="result-item">
+        📏 <strong>إجمالي المساحة لجميع النوافذ: <span id="totalArea"></span> م²</strong>
+      </div>
+      <div class="result-item">
+        💰 <strong>إجمالي تكلفة الزبون: <span id="totalCustomerCost"></span> شيكل</strong>
+      </div>
+      <div class="result-item" style="font-size: 18px; margin-top: 15px;">
+        💵 <strong>صافي الربح: <span id="netProfit"></span> شيكل</strong>
       </div>
     </div>
   </div>
@@ -161,8 +173,9 @@
       document.getElementById('calculateBtn').addEventListener('click', function () {
         const aluminumPrice = parseFloat(document.getElementById('aluminumPrice').value);
         const glassPrice = parseFloat(document.getElementById('glassPrice').value);
+        const customerRate = parseFloat(document.getElementById('customerRate').value);
 
-        if (isNaN(aluminumPrice) || isNaN(glassPrice) || aluminumPrice <= 0 || glassPrice <= 0) {
+        if (isNaN(aluminumPrice) || isNaN(glassPrice) || isNaN(customerRate) || aluminumPrice <= 0 || glassPrice <= 0 || customerRate <= 0) {
           alert("يرجى إدخال القيم بشكل صحيح.");
           return;
         }
@@ -171,6 +184,8 @@
         let totalScrews = 0;
         let totalWheels = 0;
         let totalHandles = 0;
+        let totalArea = 0;
+        let totalCustomerCost = 0;
 
         // تم حساب جميع النوافذ المدخلة
         let individualResultsHTML = '';
@@ -204,6 +219,8 @@
           totalScrews += 2;
           totalWheels += 6;
           totalHandles += 1;
+          totalArea += area;
+          totalCustomerCost += area * customerRate;
 
           // عرض القياسات الخاصة بالزاز
           individualResultsHTML += `
@@ -223,14 +240,17 @@
           `;
         }
 
-        // عرض نتائج كل شباك
-        document.getElementById('individualResults').innerHTML = individualResultsHTML;
+        // حساب صافي الربح
+        const netProfit = totalCustomerCost - totalCost;
 
-        // عرض التكلفة الإجمالية لجميع النوافذ
+        // عرض النتائج
+        document.getElementById('individualResults').innerHTML = individualResultsHTML;
         document.getElementById('totalCost').innerText = totalCost.toFixed(2);
         document.getElementById('totalItems').innerText = `سكرة: ${totalScrews} - عجلات: ${totalWheels} - يد الريشت: ${totalHandles}`;
+        document.getElementById('totalArea').innerText = totalArea.toFixed(2);
+        document.getElementById('totalCustomerCost').innerText = totalCustomerCost.toFixed(2);
+        document.getElementById('netProfit').innerText = netProfit.toFixed(2);
 
-        // إظهار قسم النتائج
         document.getElementById('result').style.display = 'block';
       });
     });
