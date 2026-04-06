@@ -3,103 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إنتاج أبو علاء المطور</title>
+    <title>نظام إنتاج أبو علاء - نسخة الصور</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #d1d1d1; margin: 0; padding: 20px; }
-        .main-sheet { background: white; max-width: 950px; margin: auto; padding: 25px; border: 2px solid #000; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 15px; }
+        .main-container { background: white; max-width: 900px; margin: auto; padding: 20px; border: 2px solid #333; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
         
-        /* تقسيم الصفحة: شباك يمين / جدول يسار */
-        .layout { display: flex; gap: 20px; align-items: flex-start; margin-top: 20px; }
-        .window-side { flex: 1; border: 1px solid #ccc; padding: 15px; text-align: center; background: #f9f9f9; }
-        .table-side { flex: 2; }
+        /* الترويسة */
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+        .window-draw { width: 120px; height: 90px; border: 2px solid #333; background: #e3f2fd; display: flex; }
+        .pane { flex: 1; border: 1px solid #333; position: relative; }
+        .arrow { position: absolute; top: 50%; width: 20px; height: 2px; background: red; }
 
-        .window-svg { width: 100%; max-width: 250px; height: auto; border: 2px solid #333; }
+        /* منطقة التحكم */
+        .controls { background: #2c3e50; color: white; padding: 15px; border-radius: 8px; display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        .controls input { width: 85px; padding: 10px; font-size: 18px; border-radius: 5px; border: none; text-align: center; font-weight: bold; }
 
-        /* مدخلات القياس */
-        .controls { background: #34495e; color: white; padding: 15px; display: flex; justify-content: center; gap: 20px; border-radius: 5px; }
-        .controls input { width: 80px; padding: 8px; font-size: 18px; border-radius: 4px; border: none; text-align: center; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #000; padding: 8px; text-align: center; font-size: 13px; }
-        th { background: #eee; }
-
-        /* تنسيق صور البروفيلات */
-        .profile-img { width: 45px; height: 45px; object-fit: contain; background: #fff; border: 0.5px solid #ddd; }
-        .res-bold { font-weight: bold; color: #c0392b; font-size: 16px; }
+        /* التنسيق الجانبي */
+        .content-layout { display: flex; gap: 20px; flex-wrap: wrap; }
+        .table-container { flex: 2; min-width: 300px; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #000; padding: 10px; text-align: center; vertical-align: middle; }
+        th { background: #f8f9fa; font-size: 13px; }
+        
+        /* الصور */
+        .profile-img { width: 60px; height: 60px; object-fit: contain; border: 1px solid #eee; padding: 2px; background: #fff; }
+        .res-bold { font-weight: bold; color: #d35400; font-size: 18px; }
     </style>
 </head>
 <body>
 
-<div class="main-sheet">
-    <div style="text-align:center; border-bottom: 2px solid #000; padding-bottom: 10px;">
-        <h2>📋 أمر تشغيل فني - ورشة أبو علاء</h2>
-        <p>سلسلة 7000 منزلق | القياسات بالـ (cm)</p>
+<div class="main-container">
+    <div class="header">
+        <div>
+            <h2 style="margin:0;">🛠️ ورشة أبو علاء</h2>
+            <p style="margin:5px 0; color:#666;">أمر إنتاج: سلسلة 7000 منزلق</p>
+        </div>
+        <div class="window-draw">
+            <div class="pane"><div class="arrow" style="left:5px;"></div></div>
+            <div class="pane"><div class="arrow" style="right:5px; transform:rotate(180deg);"></div></div>
+        </div>
     </div>
 
     <div class="controls">
-        <label>العرض الكلي:</label>
-        <input type="text" id="W" value="175" inputmode="decimal" oninput="updateAll()">
-        <label>الارتفاع الكلي:</label>
-        <input type="text" id="H" value="119" inputmode="decimal" oninput="updateAll()">
+        <div>العرض (W): <input type="text" id="W" value="175" inputmode="decimal" oninput="calculate()"></div>
+        <div>الارتفاع (H): <input type="text" id="H" value="119" inputmode="decimal" oninput="calculate()"></div>
     </div>
 
-    <div class="layout">
-        <div class="window-side">
-            <h4>شكل التشغيل</h4>
-            <svg class="window-svg" viewBox="0 0 100 80">
-                <rect x="5" y="5" width="90" height="70" fill="#e3f2fd" stroke="#333" stroke-width="2"/>
-                <line x1="50" y1="5" x2="50" y2="75" stroke="#333" stroke-width="2"/>
-                <path d="M20 40 L35 40 M32 37 L35 40 L32 43" stroke="red" stroke-width="2" fill="none"/>
-                <path d="M80 40 L65 40 M68 37 L65 40 L68 43" stroke="red" stroke-width="2" fill="none"/>
-            </svg>
-            <p style="font-size: 12px; color: #666;">اتجاه الحركة: منزلق جانبي</p>
-        </div>
-
-        <div class="table-side">
+    <div class="content-layout">
+        <div class="table-container">
             <table>
                 <thead>
                     <tr>
-                        <th>البروفيل</th>
+                        <th>الشكل (البروفيل)</th>
+                        <th>الكود</th>
                         <th>القطعة</th>
                         <th>العدد</th>
                         <th>القص (cm)</th>
                     </tr>
                 </thead>
-                <tbody id="alu_table">
-                    </tbody>
+                <tbody id="resultBody"></tbody>
             </table>
         </div>
     </div>
 </div>
 
 <script>
-    function updateAll() {
+    function calculate() {
         let w = parseFloat(document.getElementById('W').value) || 0;
         let h = parseFloat(document.getElementById('H').value) || 0;
 
-        // البيانات مع روابط الصور (استبدل الروابط بصورك الحقيقية لاحقاً)
+        // روابط صور افتراضية لقطاعات الألمنيوم (يمكنك استبدالها بروابط صورك الحقيقية)
         let data = [
-            { img: "p1.png", code: "03308", name: "عرض الحلق", qty: 2, val: w - 2.6 },
-            { img: "p1.png", code: "03308", name: "طول الحلق", qty: 2, val: h },
-            { img: "p2.png", code: "03327", name: "درفة طول", qty: 4, val: h - 7.7 },
-            { img: "p3.png", code: "03336", name: "درفة عرض", qty: 4, val: (w - 2.8) / 2 }
+            { 
+                img: "https://img.icons8.com/ios/100/squared-menu.png", 
+                code: "03308", name: "عرض الحلق", qty: 2, val: w - 2.6 
+            },
+            { 
+                img: "https://img.icons8.com/ios/100/vertical-line.png", 
+                code: "03308", name: "طول الحلق", qty: 2, val: h 
+            },
+            { 
+                img: "https://img.icons8.com/ios/100/rectangular.png", 
+                code: "03327", name: "درفة طول (Sash)", qty: 4, val: h - 7.7 
+            },
+            { 
+                img: "https://img.icons8.com/ios/100/border-top.png", 
+                code: "03336", name: "درفة عرض", qty: 4, val: (w - 2.8) / 2 
+            }
         ];
 
         let html = "";
         data.forEach(item => {
             html += `<tr>
-                <td>
-                    <img src="${item.img}" alt="${item.code}" class="profile-img" onerror="this.src='https://via.placeholder.com/45?text=${item.code}'">
-                    <br><small>${item.code}</small>
-                </td>
+                <td><img src="${item.img}" class="profile-img"></td>
+                <td style="font-family:monospace;">${item.code}</td>
                 <td>${item.name}</td>
                 <td>${item.qty}</td>
                 <td class="res-bold">${item.val.toFixed(1)}</td>
             </tr>`;
         });
-        document.getElementById('alu_table').innerHTML = html;
+        document.getElementById('resultBody').innerHTML = html;
     }
-    window.onload = updateAll;
+    window.onload = calculate;
 </script>
 
 </body>
