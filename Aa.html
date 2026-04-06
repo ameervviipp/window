@@ -3,75 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حاسبة دقيقة - ورشة أبو علاء</title>
+    <title>نظام إنتاج ألمنيوم - أبو علاء</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #eee; padding: 10px; }
-        .card { background: white; max-width: 500px; margin: auto; padding: 20px; border: 2px solid #333; box-shadow: 5px 5px 0px #000; }
-        .input-box { background: #fff9c4; padding: 15px; border: 1px solid #fbc02d; margin-bottom: 20px; text-align: center; }
-        input { width: 100px; padding: 10px; font-size: 20px; font-weight: bold; text-align: center; border: 2px solid #000; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #000; padding: 12px; text-align: center; }
-        th { background: #333; color: white; }
-        .final { color: #e67e22; font-weight: bold; font-size: 20px; }
-        .header-title { border-bottom: 2px solid #000; margin-bottom: 15px; padding-bottom: 5px; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #e9ecef; margin: 0; padding: 10px; }
+        .page { background: white; max-width: 700px; margin: auto; padding: 20px; border: 1.5px solid #333; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        /* الترويسة */
+        .header { display: flex; justify-content: space-between; border-bottom: 3px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
+        .header-text h2 { margin: 0; color: #2c3e50; }
+        .header-text p { margin: 5px 0 0; font-size: 14px; color: #7f8c8d; }
+        
+        /* رسم الشباك أعلى اليسار */
+        .window-svg { width: 100px; height: 80px; border: 2px solid #333; background: #f8f9fa; }
+
+        /* منطقة الإدخال */
+        .input-section { background: #fff9c4; padding: 15px; border: 1px solid #fbc02d; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 15px; justify-content: center; align-items: center; }
+        .input-section label { font-weight: bold; font-size: 15px; }
+        .input-section input { width: 90px; padding: 10px; font-size: 18px; border: 2px solid #333; border-radius: 5px; text-align: center; font-weight: bold; }
+
+        /* الجداول */
+        .table-title { background: #34495e; color: white; padding: 8px 12px; font-weight: bold; font-size: 14px; border-radius: 5px 5px 0 0; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #333; padding: 10px; text-align: center; font-size: 14px; }
+        th { background: #f2f2f2; font-weight: bold; }
+        .res-num { color: #d35400; font-weight: bold; font-size: 17px; }
+
+        /* تذييل الورقة */
+        .footer { font-size: 11px; color: #7f8c8d; border-top: 1px dashed #ccc; padding-top: 10px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <div class="header-title">
-        <b>📐 نظام القص الدقيق (سلسلة 7000)</b><br>
-        بناءً على تعليماتك الفنية
+<div class="page">
+    <div class="header">
+        <div class="header-text">
+            <h2>📄 ورقة أمر التشغيل</h2>
+            <p>الزبون: <b>أبو علاء</b> | سلسلة: <b>7000 منزلق</b></p>
+            <p>اللون: <b>7043</b> | التاريخ: 2026-04-06</p>
+        </div>
+        <svg class="window-svg" viewBox="0 0 100 80">
+            <rect x="5" y="5" width="90" height="70" fill="none" stroke="#333" stroke-width="2"/>
+            <line x1="50" y1="5" x2="50" y2="75" stroke="#333" stroke-width="2"/>
+            <path d="M20 40 L30 40 M27 37 L30 40 L27 43" stroke="red" stroke-width="2" fill="none"/>
+            <path d="M80 40 L70 40 M73 37 L70 40 L73 43" stroke="red" stroke-width="2" fill="none"/>
+        </svg>
     </div>
 
-    <div class="input-box">
-        <label>العرض الكلي (W):</label><br>
-        <input type="text" id="W" value="175" inputmode="decimal" oninput="calc()"><br><br>
-        <label>الارتفاع الكلي (H):</label><br>
-        <input type="text" id="H" value="119" inputmode="decimal" oninput="calc()">
+    <div class="input-section">
+        <div>
+            <label>العرض (W):</label>
+            <input type="text" id="w_val" value="175" inputmode="decimal" oninput="calculateAll()">
+        </div>
+        <div>
+            <label>الارتفاع (H):</label>
+            <input type="text" id="h_val" value="119" inputmode="decimal" oninput="calculateAll()">
+        </div>
     </div>
 
+    <div class="table-title">1. قائمة تقطيع الألمنيوم (ALU LIST)</div>
     <table>
         <thead>
             <tr>
                 <th>القطعة</th>
                 <th>العدد</th>
-                <th>قياس القص</th>
+                <th>الخصم المطبق</th>
+                <th>طول القص النهائي</th>
             </tr>
         </thead>
-        <tbody id="res"></tbody>
+        <tbody id="alu_body"></tbody>
     </table>
+
+    <div class="table-title">2. قائمة الزجاج (GLASS LIST)</div>
+    <table>
+        <thead>
+            <tr>
+                <th>النوع</th>
+                <th>العدد</th>
+                <th>العرض (W)</th>
+                <th>الارتفاع (H)</th>
+            </tr>
+        </thead>
+        <tbody id="glass_body"></tbody>
+    </table>
+
+    <div class="footer">
+        * ملاحظات: جميع المقاسات محسوبة بناءً على خصومات الورشة المعتمدة (H-7.7 / W-2.8 / Helq-2.6).
+    </div>
 </div>
 
 <script>
-    function calc() {
-        let w = parseFloat(document.getElementById('W').value) || 0;
-        let h = parseFloat(document.getElementById('H').value) || 0;
+    function calculateAll() {
+        let w = parseFloat(document.getElementById('w_val').value) || 0;
+        let h = parseFloat(document.getElementById('h_val').value) || 0;
 
-        // تطبيق المعادلات التي ذكرتها أنت بدقة:
-        let helq_w = w - 2.6;      // عرض الحلق (175 - 2.6 = 172.4)
-        let helq_h = h;            // طول الحلق يبقى كما هو
-        let darfa_h = h - 7.7;     // ارتفاع الدرفة
-        let darfa_w = (w - 2.8) / 2; // عرض الدرفة
-
+        // تطبيق معادلاتك الدقيقة
         let results = [
-            { name: "عرض الحلق", qty: 2, val: helq_w },
-            { name: "طول الحلق", qty: 2, val: helq_h },
-            { name: "ارتفاع الدرفة", qty: 4, val: darfa_h },
-            { name: "عرض الدرفة", qty: 4, val: darfa_w }
+            { name: "عرض الحلق (سفلي/علوي)", qty: 2, ded: "-2.6", val: w - 2.6 },
+            { name: "طول الحلق (جانبي)", qty: 2, ded: "0", val: h },
+            { name: "درفة طول (Sash)", qty: 4, ded: "-7.7", val: h - 7.7 },
+            { name: "درفة عرض (Interlock)", qty: 4, ded: "-2.8 / 2", val: (w - 2.8) / 2 }
         ];
 
-        let html = "";
-        results.forEach(item => {
-            html += `<tr>
-                <td>${item.name}</td>
-                <td>${item.qty}</td>
-                <td class="final">${item.val.toFixed(1)}</td>
+        let aluHtml = "";
+        results.forEach(i => {
+            aluHtml += `<tr>
+                <td>${i.name}</td>
+                <td>${i.qty}</td>
+                <td style="color:#7f8c8d">${i.ded}</td>
+                <td class="res-num">${i.val.toFixed(1)}</td>
             </tr>`;
         });
-        document.getElementById('res').innerHTML = html;
+        document.getElementById('alu_body').innerHTML = aluHtml;
+
+        // حساب الزجاج (بناءً على مقاس الدرفة - خصم إطار الألمنيوم الداخلي 9.5 سم)
+        let gw = ((w - 2.8) / 2) - 9.5;
+        let gh = (h - 7.7) - 9.5;
+        
+        document.getElementById('glass_body').innerHTML = `
+            <tr>
+                <td>شفاف 6 ملم</td>
+                <td>2</td>
+                <td class="res-num">${gw.toFixed(1)}</td>
+                <td class="res-num">${gh.toFixed(1)}</td>
+            </tr>`;
     }
-    window.onload = calc;
+    window.onload = calculateAll;
 </script>
 
 </body>
