@@ -2,92 +2,118 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>برنامج أبو علاء للألمنيوم</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Sheet - Series 7000</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 10px; background: #e0e0e0; }
-        .sheet { background: white; max-width: 800px; margin: auto; padding: 20px; border: 1px solid #000; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
+        body { font-family: 'Courier New', Courier, monospace; background: #999; margin: 0; padding: 10px; }
+        .page { background: white; width: 95%; max-width: 800px; margin: auto; padding: 15px; border: 1px solid #000; min-height: 500px; }
         
-        /* الترويسة الهندسية */
-        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 10px; }
-        .window-box { width: 100px; height: 80px; border: 2px solid #333; display: flex; position: relative; }
-        .pane { flex: 1; border: 1px solid #333; background: #f0f8ff; }
+        /* الترويسة العلوية */
+        .top-bar { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 10px; }
+        .win-draw { width: 100px; height: 80px; border: 1px solid #000; display: flex; position: relative; }
+        .win-draw div { flex: 1; border: 0.5px solid #000; background: #f0f0f0; }
 
-        /* منطقة الإدخال - جعلناها كبيرة وواضحة للهاتف */
-        .input-area { background: #fff9c4; padding: 15px; border: 2px solid #fbc02d; margin: 15px 0; border-radius: 8px; }
-        label { font-weight: bold; font-size: 14px; color: #333; }
-        input { width: 80px; padding: 10px; font-size: 18px; font-weight: bold; border: 1px solid #000; text-align: center; margin: 0 10px; border-radius: 4px; }
+        /* منطقة الإدخال - جعلتها واضحة جداً للتعديل */
+        .edit-box { background: #eee; padding: 10px; border: 1px dashed #000; margin-bottom: 15px; text-align: center; }
+        .edit-box input { width: 70px; padding: 8px; font-size: 18px; border: 1px solid #000; font-weight: bold; text-align: center; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid #000; padding: 8px; text-align: center; font-size: 13px; }
-        th { background: #eee; }
-        .val { color: #d32f2f; font-weight: bold; font-size: 16px; }
+        /* الجداول - مطابقة لشكل الورقة */
+        h4 { margin: 10px 0 5px 0; font-size: 14px; text-decoration: underline; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        th, td { border: 1px solid #000; padding: 5px; text-align: center; font-size: 12px; }
+        th { background: #e0e0e0; }
+        .res-val { font-weight: bold; font-size: 15px; background: #ffffd0; }
+
+        /* إخفاء أدوات الإدخال عند الطباعة */
+        @media print { .edit-box { display: none; } .page { border: none; width: 100%; } }
     </style>
 </head>
 <body>
 
-<div class="sheet">
-    <div class="header">
-        <div>
-            <b>أمر إنتاج فني - ورشة أبو علاء</b><br>
-            سلسلة 7000 | رمادي 7043
+<div class="page">
+    <div class="top-bar">
+        <div style="font-size: 12px;">
+            <b>PROJECT: ABU ALAA</b><br>
+            SERIES: 7000 SLIDING<br>
+            COLOR: 7043 | DATE: 2026
         </div>
-        <div class="window-box">
-            <div class="pane"></div>
-            <div class="pane"></div>
+        <div class="win-draw">
+            <div></div><div></div>
         </div>
     </div>
 
-    <div class="input-area">
-        <label>العرض (W):</label>
-        <input type="text" id="W" value="1750" inputmode="decimal" oninput="update()">
-        
-        <label>الارتفاع (H):</label>
-        <input type="text" id="H" value="1190" inputmode="decimal" oninput="update()">
-        <p style="font-size: 11px; margin: 5px 0 0 0; color: #666;">* قم بتغيير الأرقام أعلاه لتتحدث الجداول فوراً</p>
+    <div class="edit-box">
+        العرض (W): <input type="text" id="W" value="1750" inputmode="decimal" oninput="calculate()">
+        الارتفاع (H): <input type="text" id="H" value="1190" inputmode="decimal" oninput="calculate()">
     </div>
 
+    <h4>1. تقطيع الألمنيوم (ALU CUTTING LIST)</h4>
     <table>
         <thead>
             <tr>
                 <th>الكود</th>
-                <th>المقطع</th>
+                <th>الوصف</th>
                 <th>العدد</th>
-                <th>الطول (mm)</th>
+                <th>الخصم</th>
+                <th>الطول النهائي</th>
             </tr>
         </thead>
-        <tbody id="aluTable"></tbody>
+        <tbody id="alu"></tbody>
     </table>
 
-    <script>
-        function update() {
-            let w = parseFloat(document.getElementById('W').value) || 0;
-            let h = parseFloat(document.getElementById('H').value) || 0;
+    <h4>2. الزجاج (GLASS)</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>النوع</th>
+                <th>العدد</th>
+                <th>W (mm)</th>
+                <th>H (mm)</th>
+            </tr>
+        </thead>
+        <tbody id="glass"></tbody>
+    </table>
 
-            // الحسابات بناءً على ورقة العمل الفنية
-            let data = [
-                {id: "03308", name: "حلق عرض", qty: 2, len: w},
-                {id: "03308", name: "حلق طول", qty: 2, len: h},
-                {id: "03327", name: "درفة طول", qty: 4, len: h - 77},
-                {id: "03336", name: "درفة عرض", qty: 4, len: (w / 2) + 14}
-            ];
-
-            let html = "";
-            data.forEach(item => {
-                html += `<tr>
-                    <td>${item.id}</td>
-                    <td>${item.name}</td>
-                    <td>${item.qty}</td>
-                    <td class="val">${item.len.toFixed(1)}</td>
-                </tr>`;
-            });
-            document.getElementById('aluTable').innerHTML = html;
-        }
-        
-        // تشغيل أولي
-        window.onload = update;
-    </script>
+    <div style="font-size: 10px; margin-top: 30px; border-top: 1px solid #000;">
+        * ملاحظة: يتم التحقق من القياسات قبل القص الفعلي.
+    </div>
 </div>
+
+<script>
+    function calculate() {
+        // قراءة القيم وتحويلها لأرقام
+        let w = parseFloat(document.getElementById('W').value) || 0;
+        let h = parseFloat(document.getElementById('H').value) || 0;
+
+        // الحسابات الفنية (مطابقة للورقة)
+        let data = [
+            {id: "03308", desc: "حلق أفقي", qty: 2, ded: "0", res: w},
+            {id: "03308", desc: "حلق رأسي", qty: 2, ded: "0", res: h},
+            {id: "03327", desc: "درفة طول", qty: 4, ded: "-77", res: h - 77},
+            {id: "03336", desc: "درفة عرض", qty: 4, ded: "+14", res: (w / 2) + 14}
+        ];
+
+        let aluHtml = "";
+        data.forEach(x => {
+            aluHtml += `<tr>
+                <td>${x.id}</td>
+                <td>${x.desc}</td>
+                <td>${x.qty}</td>
+                <td>${x.ded}</td>
+                <td class="res-val">${x.res.toFixed(1)}</td>
+            </tr>`;
+        });
+        document.getElementById('alu').innerHTML = aluHtml;
+
+        // حساب الزجاج
+        let gw = ((w/2) + 14) - 95;
+        let gh = (h - 77) - 95;
+        document.getElementById('glass').innerHTML = `<tr><td>شفاف 6mm</td><td>2</td><td class="res-val">${gw.toFixed(1)}</td><td class="res-val">${gh.toFixed(1)}</td></tr>`;
+    }
+
+    // تشغيل تلقائي
+    window.onload = calculate;
+</script>
 
 </body>
 </html>
