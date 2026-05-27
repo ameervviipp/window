@@ -1,0 +1,1 @@
+firebase.auth.onAuthStateChanged(user) => {// if (luser) {// window.location.href = "login html"; // } // 3) //
